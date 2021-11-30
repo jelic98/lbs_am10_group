@@ -17,23 +17,26 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(ggwordcloud)
+library(factoextra)
+library(gridExtra)
 library(tidyverse)
 library(urbnmapr)
 library(janitor)
 library(ggplot2)
+library(cluster)
 library(skimr)
 library(sf)
 library(ggpubr)
 ```
 
 
-## Introduction 
+# Introduction 
 Our final project aims to explore the health level of fast food restaurants in United States and nutritional value of their items. This project will focus on four fast food restaurants including McDonald's, Subway, Burger King, and Taco bell. After exploring the calorie distribution of restaurants, we created our own quantitative measure of healthiness through the macro-nutrient balance score to further investigate the health level of those fast food restaurants. Furthermore, we identified menu items that are vegetarian and pescetarian friendly and provide information about the degree of vegetarian and pescetarian friendly of each restaurant. 
 
-## Statement of Purpose 
+# Statement of Purpose 
 To create intuitive visualizations that will allow consumers to make quick and informative choices about their meals when going to one of the four fast food restaurants we focused on for this project. We try to include information that will allow diverse consumers (ex: vegetarian/pescetarian, health-conscious) to come to their own conclusion about which meal from which restaurant they should get for their next meal. 
 
-## Background and Preparation
+# Background and Preparation
 We utilized 4 separate data sets to create our visualizations: 
 
 - Data set 1: Fast food menu items and their nutritional values from tidytuesday in 2018 in the United States
@@ -44,7 +47,7 @@ We utilized 4 separate data sets to create our visualizations:
 It is important to note that the first two data sets do not include all current fast food menu items nor locations as the data is from 2018 and takes samples of locations from various locations of the country. As such, the analysis we could conduct was limited. 
 In our analysis, however, we first focused our analysis to the 4 largest fast food restaurants: McDonald's, Burger King, Subway, and Taco Bell. To prepare the data for analysis, we deleted irrelevant columns and NAs, adjusted state names if necessary, and made all string variables (restaurant and menu item names) lowercase without special characters so as to standardize the data for easier analysis. We then combined data sets through inner_join operations. The location data in data sets 3 and 4 were ultimately not used, as the conclusions we could reach from the mapped data was irrelevant to the story we wanted to tell. 
 
-## Methodology 
+# Methodology 
 Overall, we utilized R packages such as dplyr to sort through the data and create relevant insights such as macro-nutrient balance scores and recognizing vegetarian/pescetarian menu items from the item names. We also utilized machine learning algorithms such as K-means to classify the menu items. The methodologies for each plot is described below with their respective codes. 
 In order to narrate our story, we divide our presentation into two parts and a total of 6 plots and lists: 
 
@@ -57,11 +60,11 @@ In order to narrate our story, we divide our presentation into two parts and a t
   - Key word analysis of menu items using word cloud 
   - Finding which restaurant is more vegetarian and or pescetarian friendly
   
-## Results and Conclusions
+# Results and Conclusions
 In the following sections, we will share the codes that we used to clean, analyze, and graph the data before creating our final visuals on Tableau. 
 
-### Loading the data 
-```{r}
+## Loading the data 
+```{r load-data, warning=FALSE, message=FALSE}
 calories <- read_csv('data/fastfood_calories.csv') %>%
   clean_names() %>%
   rename(total_prot=protein) %>%
@@ -90,27 +93,28 @@ population <- read_csv('data/us_pop.csv') %>%
   rename(state=abbreviation)
 ```
 
-### 1: Calorie distribution 
+## 1. Calorie distribution 
 **Question answered:** What is the distribution of calories for each restaurant? 
 
 We observed the distribution of the menu items for each of the four restaurants, resulting in the following density plot: 
 
-```{r}
+```{r calorie-distribution-plot}
 calories %>%
   ggplot() +
   geom_density(aes(x=calories)) +
-  facet_wrap(~restaurant)
+  facet_wrap(~restaurant)+
+  theme_bw()+
+  labs(title = "Distribution of calories for each restaurant")
 
 ```
 
-### 2: Macro-nutrient balance score oxplot 
+## 2. Macro-nutrient balance score boxplot 
 **Question answered:** What is the distribution of the macro-nutrient balance scores? 
-
 The macro-nutrient balance score for each macro nutrient is calculated by multiplying total_carb_grams with the number of calories per gram (4 for carb, 4 for protein, 9 for fat), dividing by the total_calories in an item to get precentage and subtracting benchmark (50 carb, 30 fat, 20 protein) from the division result. The overall macro-nutrient balance score is calculated with the following equation: *macro-nutrient _balance_score=score_prot-(score_carb+score_fat)*
 
 Then, we observed the distribution of the macro-nutrient balance scores for all menu items for each restaurant using boxplots: 
 
-```{r}
+```{r macro-nutrient-balance-score-boxplot}
 balance_scores <- calories %>%
   mutate(
     score_carb=4*total_carb/calories-0.5,
@@ -128,31 +132,34 @@ balance_scores <- calories %>%
 
 balance_scores %>%
   ggplot(aes(x=restaurant, y=balance_score)) +
-  geom_boxplot()
+  geom_boxplot()+
+  theme_bw()+
+  labs(title = "Distribution of the macro-nutrient balance scores of each restaurant")
 
 ```
 
-### 3: Healthiest and unhealthiest menu items 
+## 3. Healthiest and unhealthiest menu items 
 **Question answered:** Which menu items from which restaurants are the the most macro-nutrient balanced (healthiest)/ least balanced (unhealthiest)? 
 
 Using the macro-nutrient balance scores calculated above, we sliced the five most balanced (healthy) menu items and then the five least balanced (unhealthy) menu items. 
 
 ```{r}
 balance_scores %>%
-  slice_max(order_by=balance_score, n=5)
+  slice_max(order_by=balance_score, n=5) %>% 
+  pander::pander()
 
 balance_scores %>%
-  slice_min(order_by=balance_score, n=5)
+  slice_min(order_by=balance_score, n=5) %>% 
+  pander::pander()
 
 ```
 
-### 4: Modelling K-Means
+## 4. Modelling:K-Means Clustering
 **Question answered:** How can we classify menu items based on various item features? 
-
 Using K-means clustering, we will cluster menu items so that consumers can determine which items with which features (ex: cholestrol, total carbs, total fat) are similar to one another. In this way restaurants can also get an idea of the characteristics of menu items that consumers look for. 
 We visualized the clusters for a. calories vs. cholesterol and b. calories vs. total_carbs as examples: 
-```{r}
-calories <- read_csv('data/fastfood_calories.csv') %>%
+```{r clustering analysis, warning=FALSE, message=FALSE}
+calories_clust <- read_csv('data/fastfood_calories.csv') %>%
   clean_names() %>%
   rename(total_prot=protein) %>%
   mutate(restaurant=str_replace_all(tolower(restaurant), '[^\\w]', '')) %>%
@@ -162,13 +169,12 @@ calories <- read_csv('data/fastfood_calories.csv') %>%
     restaurant %in% c('mcdonalds', 'burgerking', 'tacobell', 'subway')) %>%
   select(calories, cal_fat, total_fat, sat_fat, trans_fat, cholesterol, sodium, total_carb, fiber, sugar, total_prot)
 
-skimr::skim(calories)
+skimr::skim(calories_clust)
 
-model_kmeans_2clusters<-eclust(calories, "kmeans", k = 2,nstart = 50, graph = FALSE)
+model_kmeans_2clusters<-eclust(calories_clust, "kmeans", k = 2,nstart = 50, graph = FALSE)
 
-model_withClusters <- calories %>%
+model_withClusters <- calories_clust %>%
   mutate(cluster = as.factor(model_kmeans_2clusters$cluster))
-
 
 #Visualisations  
 a<-ggplot(model_withClusters, aes(x = calories, y = total_carb, color =  as.factor(cluster))) +
@@ -179,7 +185,6 @@ b<-ggplot(model_withClusters, aes(x = calories, y = cholesterol, color = as.fact
   geom_jitter()+labs(color = "Cluster")
 b
 #Let's arrange these visualizations so that they fit in the html file nicely
-library(gridExtra)
 grid.arrange(a, b, nrow = 2)
 #Plot centers for k=2
 #First generate a new data frame with cluster centers and cluster numbers
@@ -187,8 +192,7 @@ cluster_centers<-data.frame(cluster=as.factor(c(1:2)),model_kmeans_2clusters$cen
 #transpose this data frame
 cluster_centers_t<-cluster_centers %>% gather(variable,value,-cluster,factor_key = TRUE)
 #plot the centers
-graphkmeans_2clusters<-ggplot(cluster_centers_t, aes(x = variable, y = value))+  geom_line(aes(color =cluster,group = cluster), linetype = "dashed",size=1)+ geom_point(size=1,shape=4)+geom_hline(yintercept=0)+theme(text = element_text(size=10),
-                                                                                                                                                                                                                       axis.text.x = element_text(angle=45, hjust=1),)+ggtitle("K-means Centers k=2")
+graphkmeans_2clusters<-ggplot(cluster_centers_t, aes(x = variable, y = value))+  geom_line(aes(color =cluster,group = cluster), linetype = "dashed",size=1)+ geom_point(size=1,shape=4)+geom_hline(yintercept=0)+theme(text = element_text(size=10),axis.text.x = element_text(angle=45, hjust=1),)+ggtitle("K-means Centers k=2")
 graphkmeans_2clusters
 
 ```
@@ -196,21 +200,20 @@ graphkmeans_2clusters
 Below, we determine whether k=2 is optimal for clustering: 
 ```{r}
 #Checking if 2 is the optimal cluster 
-fviz_nbclust(calories, kmeans, method = "silhouette",k.max = 15)+labs(subtitle = "Silhouette method")
+fviz_nbclust(calories_clust, kmeans, method = "silhouette",k.max = 15)+labs(subtitle = "Silhouette method")
 
 #Making a plot of Clusters 
-fviz_cluster(model_kmeans_2clusters, calories, palette = "Set2", ggtheme = theme_minimal())
+fviz_cluster(model_kmeans_2clusters, calories_clust, palette = "Set2", ggtheme = theme_minimal())
 ```
 
-### 5: Wordcloud 
+## 5. Wordcloud 
 **Question answered:** What are the major key words found in each restaurants' menus? 
-
 Restaurants use certain key words to attract consumers and get them to buy their products. Before diving into what kind of vegetarian or pescetarian friendly menu items these corporations include in their menus, we can get an overview of the kinds of key words found in the menu overall by visualizing them in a wordcloud:  
 
 ```{r}
-for(r in c('mcdonalds', 'burgerking', 'tacobell', 'subway')) {
+make_cloud <- function(name) {
   words <- calories %>%
-    filter(restaurant==r) %>%
+    filter(restaurant==name) %>%
     select(item) %>%
     mutate(item=str_replace_all(tolower(item), '[^\\s\\w]', '')) %>%
     pull()
@@ -221,9 +224,14 @@ for(r in c('mcdonalds', 'burgerking', 'tacobell', 'subway')) {
     ggplot(aes(label=item, size=n)) +
     geom_text_wordcloud()
 }
+
+make_cloud('mcdonalds')
+make_cloud('burgerking')
+make_cloud('tacobell')
+make_cloud('subway')
 ```
 
-### 6: Vegetarian and Pescetarian friendly restaurants
+## 6. Vegetarian and Pescetarian friendly restaurants
 **Question answered:** Which of the four fast food restuarants is most vegetarian and or pescetarian friendly? 
 
 In this section, we explored the calories data set to find which restaurant is most vegetarian and or pescetarian friendly. We looked at each menu item name one by one to find some of the key words that can identify vegetarian or pescetarian friendly menu items. We extracted the number of vegetarian and pescetarian friendly menu items to find the percentage of menu that is vegetarian/pescetarian friendly for each restaurant. We plotted the results in a bar plot: 
@@ -246,7 +254,8 @@ calories_veg <- calories %>%
   summarize(count = n(),
             sum_veg = sum(total_veg), 
             perc = sum_veg/count * 100) 
-calories_veg
+
+pander::pander(calories_veg)
 
 # R vegetarian friendly plot 
 veggie_plot <- 
@@ -279,7 +288,8 @@ calories_pesc <- calories %>%
   summarize(count = n(),
             sum_pesc = sum(total_pesc), 
             perc = sum_pesc/count * 100)
-calories_pesc
+
+pander::pander(calories_pesc)
 
 # R pescetarian friendly plot 
 fishie_plot <- 
@@ -292,6 +302,6 @@ fishie_plot <-
 fishie_plot 
 ```
 
-## Discussion and Critique
+# Discussion and Critique
 
 Through the process of carrying out our project, we learned how to visualize and manipulate data through tableau and R.  We met some problems when we tried to create density plots with tableau, we wish to solve this problem next time. Because we only picked four restaurants, To give people more solid suggestions on restaurants choices, we should include more restaurants and do more analysis. Also, because the data was originated in 2018, if possible, we should incorporate more updated and comprehensive data. Lastly, we mainly focused on the healthiness of the restaurants in our analysis. In the future, we can dig into the data from more varied perspectives. For example, we can check people's preferences over different ingredients across different states.
