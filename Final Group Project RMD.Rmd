@@ -7,11 +7,23 @@ output: html_document
 
 ## Introduction 
 
+
 ## Statement of Purpose 
+> To create intuitive visualizations that will allow consumers to make quick and informative choices about their meals when going to one of the four fast food restaurants we focused on for this project. We try to include information that will allow diverse consumers (ex: vegetarian/pescetarian, health-conscious) to come to their own conclusion about which meal from which restaurant they should get for their next meal. 
 
 ## Background and Preparation
+We utilized 4 separate data sets to create our visualizations: 
+
+- Data set 1: Fast food menu items and their nutritional values from tidytuesday in 2018
+- Data set 2: Fast food restaurants and their locations from 2018
+- Data set 3: US State names and their abbreviations 
+- Data set 4: US State population sizes
+
+It is important to note that the first two data sets do not include all current fast food menu items nor locations as the data is from 2018 and takes samples of locations from various locations of the country. As such, the analysis we could conduct was limited. 
+In our analysis, however, we first focused our analysis to the 4 largest fast food restaurants: McDonald's, Burger King, Subway, and Taco Bell. To prepare the data for analysis, we deleted irrelevant columns, adjusted state names if necessary, and made all string variables lowercase without special characters so as to standardize the data for easier analysis. 
 
 ## Methodology 
+Overall, we utilized 
 
 ## Results and Conclusions
 
@@ -56,10 +68,39 @@ population <- read_csv('data/us_pop.csv') %>%
   rename(state=abbreviation)
 ```
 
-### Plot 1: US Map of 
+### 1: Calorie distribution 
+*Question answered:* What is the distribution of calories for each restaurant? 
 
-### Plot 2: 
-### Plot 3: Vegetarian and Pescetarian friendly restaurants
+```{r}
+
+
+```
+
+### 2: Balance score boxplot 
+*Question answered:* What is the distribution of balance scores? 
+
+```{r}
+
+```
+
+### 3: Healthiest menu items 
+*Question answered:* Which menu items from which restaurants are the healthiest? 
+
+```{r}
+
+```
+
+### 4: Wordcloud 
+*Question answered:* 
+```{r}
+
+```
+
+### 5: Vegetarian and Pescetarian friendly restaurants
+*Question answered:* Which of the four fast food restuarants is most vegetarian and or pescetarian friendly? 
+
+In this section, we explored the calories data set to find which restaurant is most vegetarian and or pescetarian friendly 
+
 ```{r vegetarian and pescetarian plots}
 #Vegetarian 
 calories_veg <- calories %>% 
@@ -126,18 +167,4 @@ fishie_plot
 
 ## Discussion and Critique
 
-
-
-```{r}
-
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+> Through the process of carrying out our project, we learned how to visualize and manipulate data through tableau and R.  We met some problems when we tried to create density plots with tableau, we wish to solve this problem next time. Because we only picked four restaurants, To give people more solid suggestions on restaurants choices, we should include more restaurants and do more analysis. Also, because the data was originated in 2018, if possible, we should incorporate more updated and comprehensive data. Also, we mainly focused on the healthiness of the restaurants in our analysis. In the future, we can dig into the data from more varied perspectives. For example, we can check people's preferences over different ingredients across different states.
