@@ -44,3 +44,5 @@ fviz_nbclust(calories, kmeans, method = "silhouette",k.max = 15)+labs(subtitle =
 
 #Making a plot of Clusters 
 fviz_cluster(model_kmeans_2clusters, calories, palette = "Set2", ggtheme = theme_minimal())
+
+#DONE!
