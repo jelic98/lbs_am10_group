@@ -11,7 +11,7 @@ In order to narrate our story, we divide our presentation into two parts and a t
 - **1: Healthiness assessment of each restaurant and their menu items** 
   - Calorie distribution graph for each restaurant
   - Distribution of macro-nutrient balance scores for each menu item 
-  - Rankings of menu items with the best and worst balance scores
+  - Rankings of menu items with the best and worst macro-nutrient balance scores
   - Clustering menu items based on their various features (beyond the macros)
 - **2: Providing information for diverse consumers (vegetarians and pescetarians)**
   - Key word analysis of menu items using word cloud 
