@@ -2,10 +2,20 @@
 
 ![Random GIF](https://i.giphy.com/media/jVHc85A90eP5lXQ3q5/giphy.gif)
 
-### About Our Project 
-
 ### Statement of Purpose
 To create intuitive visualizations that will allow consumers to make quick and informative choices about their meals when going to one of the four fast food restaurants we focused on for this project. We try to include information that will allow diverse consumers (ex: vegetarian/pescetarian, health-conscious) to come to their own conclusion about which meal from which restaurant they should get for their next meal. 
+
+### Overview of Our Project 
+In order to narrate our story, we divide our presentation into two parts and a total of 6 plots and lists: 
+
+- **1: Healthiness assessment of each restaurant and their menu items** 
+  - Calorie distribution graph for each restaurant
+  - Distribution of macro-nutrient balance scores for each menu item 
+  - Rankings of menu items with the best and worst balance scores
+  - Clustering menu items based on their various features (beyond the macros)
+- **2: Providing information for diverse consumers (vegetarians and pescetarians)**
+  - Key word analysis of menu items using word cloud 
+  - Finding which restaurant is more vegetarian and or pescetarian friendly
 
 ### Datasets
 
