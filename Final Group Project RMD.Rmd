@@ -136,7 +136,7 @@ balance_scores %>%
 
 ```
 
-### 5: Modelling K-Means
+### 4: Modelling K-Means
 **Question answered:** How can we classify menu items based on various item features? 
 
 Using K-means clustering, we will cluster menu items so that consumers can determine which items with which features (ex: cholestrol, total carbs, total fat) are similar to one another. In this way restaurants can also get an idea of the characteristics of menu items that consumers look for. 
