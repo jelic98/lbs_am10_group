@@ -22,6 +22,7 @@ To create intuitive visualizations that will allow consumers to make quick and i
 1.  What is the distribution of calories for each restaurant? 
 2.  What is the distribution of the macro-nutrient balance scores? 
 3.  Which menu items from which restaurants are the the most macro-nutrient balanced (healthiest)/ least balanced (unhealthiest)? 
-4.  What are the major key words found in each restaurants' menus? 
-5.  Which of the four fast food restuarants is most vegetarian and or pescetarian friendly? 
+4.  How can we classify menu items based on various item features? 
+5.  What are the major key words found in each restaurants' menus? 
+6.  Which of the four fast food restuarants is most vegetarian and or pescetarian friendly? 
 
