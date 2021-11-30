@@ -1,12 +1,12 @@
 ---
-title: "final group project rmd"
+title: "Group 10: Health or Not"
 author: "Group 10"
 date: "11/29/2021"
 output: html_document
 ---
 
 ## Introduction 
-
+Due to our group members' common interest in health and food, we decided to focus on fast food items and their nutritional value. We created our own measure of healthiness through the macro-nutrient balance score and identified menu items that are vegetarian and pescetarian friendly, and much more. 
 
 ## Statement of Purpose 
 > To create intuitive visualizations that will allow consumers to make quick and informative choices about their meals when going to one of the four fast food restaurants we focused on for this project. We try to include information that will allow diverse consumers (ex: vegetarian/pescetarian, health-conscious) to come to their own conclusion about which meal from which restaurant they should get for their next meal. 
@@ -14,21 +14,31 @@ output: html_document
 ## Background and Preparation
 We utilized 4 separate data sets to create our visualizations: 
 
-- Data set 1: Fast food menu items and their nutritional values from tidytuesday in 2018
-- Data set 2: Fast food restaurants and their locations from 2018
+- Data set 1: Fast food menu items and their nutritional values from tidytuesday in 2018 in the United States
+- Data set 2: Fast food restaurants and their locations from Kaggle in 2018 in the United States
 - Data set 3: US State names and their abbreviations 
 - Data set 4: US State population sizes
 
 It is important to note that the first two data sets do not include all current fast food menu items nor locations as the data is from 2018 and takes samples of locations from various locations of the country. As such, the analysis we could conduct was limited. 
-In our analysis, however, we first focused our analysis to the 4 largest fast food restaurants: McDonald's, Burger King, Subway, and Taco Bell. To prepare the data for analysis, we deleted irrelevant columns, adjusted state names if necessary, and made all string variables lowercase without special characters so as to standardize the data for easier analysis. 
+In our analysis, however, we first focused our analysis to the 4 largest fast food restaurants: McDonald's, Burger King, Subway, and Taco Bell. To prepare the data for analysis, we deleted irrelevant columns and NAs, adjusted state names if necessary, and made all string variables (restaurant and menu item names) lowercase without special characters so as to standardize the data for easier analysis. We then combined data sets through inner_join operations. The location data in data sets 3 and 4 were ultimately not used, as the conclusions we could reach from the mapped data was irrelevant to the story we wanted to tell. 
 
 ## Methodology 
-Overall, we utilized 
+Overall, we utilized R packages such as dplyr to sort through the data and create relevant insights such as macro-nutrient balance scores and recognizing vegetarian/pescetarian menu items from the item names. The methodologies for each plot is described below with their respective codes. 
+In order to narrate our story, we divide our presentation into two parts and a total of 5 plots and lists: 
 
+- **1: Healthiness assessment of each restaurant and their menu items** 
+  - Calorie distribution graph for each restaurant
+  - Distribution of macro-nutrient balance scores for each menu item 
+  - Rankings of menu items with the best and worst balance scores
+- **2: Providing information for diverse consumers (vegetarians and pescetarians)**
+  - Key word analysis of menu items using word cloud 
+  - Finding which restaurant is more vegetarian and or pescetarian friendly
+  
 ## Results and Conclusions
+In the following sections, we will share the codes that we used to clean, analyze, and graph the data before creating our final visuals on Tableau. 
 
 ### Required Packages
-```{r packages}
+```{r }
 library(ggwordcloud)
 library(tidyverse)
 library(urbnmapr)
@@ -69,37 +79,86 @@ population <- read_csv('data/us_pop.csv') %>%
 ```
 
 ### 1: Calorie distribution 
-*Question answered:* What is the distribution of calories for each restaurant? 
+**Question answered:** What is the distribution of calories for each restaurant? 
+
+We observed the distribution of the menu items for each of the four restaurants, resulting in the following density plot: 
 
 ```{r}
-
+calories %>%
+  ggplot() +
+  geom_density(aes(x=calories)) +
+  facet_wrap(~restaurant)
 
 ```
 
 ### 2: Balance score boxplot 
-*Question answered:* What is the distribution of balance scores? 
+**Question answered:** What is the distribution of balance scores? 
+
+The balance score for each macro nutrient is calculated by multiplying total_carb_grams with the number of calories per gram (4 for carb, 4 for protein, 9 for fat), dividing by the total_calories in an item to get precentage and subtracting benchmark (50 carb, 30 fat, 20 protein) from the division result. The overall balance score is calculated with the following equation: *balance_score=score_prot-(score_carb+score_fat)*
+
+Then, we observed the distribution of the balance scores for all menu items for each restaurant using boxplots: 
 
 ```{r}
+balance_scores <- calories %>%
+  mutate(
+    score_carb=4*total_carb/calories-0.5,
+    score_fat=9*total_fat/calories-0.3,
+    score_prot=4*total_prot/calories-0.2,
+    balance_score=score_prot-(score_carb+score_fat),
+    balance_score=round(balance_score*100, 1)) %>%
+  mutate(item_clean=str_replace_all(tolower(item), '[^\\s\\w]', '')) %>%
+  mutate(restaurant=case_when(
+    restaurant=='mcdonalds'~'McDonald\'s',
+    restaurant=='burgerking'~'Burger King',
+    restaurant=='tacobell'~'Taco Bell',
+    restaurant=='subway'~'Subway')) %>%
+  select(restaurant, item, item_clean, calories, balance_score)
+
+balance_scores %>%
+  ggplot(aes(x=restaurant, y=balance_score)) +
+  geom_boxplot()
 
 ```
 
-### 3: Healthiest menu items 
-*Question answered:* Which menu items from which restaurants are the healthiest? 
+### 3: Healthiest and unhealthiest menu items 
+**Question answered:** Which menu items from which restaurants are the healthiest/unhealthiest? 
+
+Using the balance scores calculated above, we sliced the five most balanced (healthy) menu items and then the five least balanced (unhealthy) menu items. 
 
 ```{r}
+balance_scores %>%
+  slice_max(order_by=balance_score, n=5)
+
+balance_scores %>%
+  slice_min(order_by=balance_score, n=5)
 
 ```
 
 ### 4: Wordcloud 
-*Question answered:* 
-```{r}
+**Question answered:** What are the major key words found in each restaurants' menus? 
 
+Restaurants use certain key words to attract consumers and get them to buy their products. Before diving into what kind of vegetarian or pescetarian friendly menu items these corporations include in their menus, we can get an overview of the kinds of key words found in the menu overall by visualizing them in a wordcloud:  
+
+```{r}
+for(r in c('mcdonalds', 'burgerking', 'tacobell', 'subway')) {
+  words <- calories %>%
+    filter(restaurant==r) %>%
+    select(item) %>%
+    mutate(item=str_replace_all(tolower(item), '[^\\s\\w]', '')) %>%
+    pull()
+  
+  as.data.frame(table(unlist(strsplit(words, ' ')))) %>%
+    rename(item=Var1, n=Freq) %>%
+    filter(str_length(item)>1, n>1) %>%
+    ggplot(aes(label=item, size=n)) +
+    geom_text_wordcloud()
+}
 ```
 
 ### 5: Vegetarian and Pescetarian friendly restaurants
-*Question answered:* Which of the four fast food restuarants is most vegetarian and or pescetarian friendly? 
+**Question answered:** Which of the four fast food restuarants is most vegetarian and or pescetarian friendly? 
 
-In this section, we explored the calories data set to find which restaurant is most vegetarian and or pescetarian friendly 
+In this section, we explored the calories data set to find which restaurant is most vegetarian and or pescetarian friendly. We looked at each menu item name one by one to find some of the key words that can identify vegetarian or pescetarian friendly menu items. We extracted the number of vegetarian and pescetarian friendly menu items to find the percentage of menu that is vegetarian/pescetarian friendly for each restaurant. We plotted the results in a bar plot: 
 
 ```{r vegetarian and pescetarian plots}
 #Vegetarian 
