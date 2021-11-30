@@ -1,15 +1,37 @@
 ---
 title: "What To Eat? Our Fast Food Menu Analysis"
-author: "Group 10"
-date: "11/29/2021"
-output: html_document
+author: "Study Group 10"
+date: "`r Sys.Date()`"
+output: 
+    html_document:
+      number_sections: true
+      highlight: zenburn
+      theme: flatly
+      toc: yes
+      toc_depth: 2
+      toc_float:
+        collapsed: false
+      fontsize: 10pt
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggwordcloud)
+library(tidyverse)
+library(urbnmapr)
+library(janitor)
+library(ggplot2)
+library(skimr)
+library(sf)
+library(ggpubr)
+```
+
+
 ## Introduction 
-Due to our group members' common interest in health and food, we decided to focus on fast food items and their nutritional value. We created our own measure of healthiness through the macro-nutrient balance score and identified menu items that are vegetarian and pescetarian friendly, and much more. 
+Our final project aims to explore the health level of fast food restaurants in United States and nutritional value of their items. This project will focus on four fast food restaurants including McDonald's, Subway, Burger King, and Taco bell. After exploring the calorie distribution of restaurants, we created our own quantitative measure of healthiness through the macro-nutrient balance score to further investigate the health level of those fast food restaurants. Furthermore, we identified menu items that are vegetarian and pescetarian friendly and provide information about the degree of vegetarian and pescetarian friendly of each restaurant. 
 
 ## Statement of Purpose 
-> To create intuitive visualizations that will allow consumers to make quick and informative choices about their meals when going to one of the four fast food restaurants we focused on for this project. We try to include information that will allow diverse consumers (ex: vegetarian/pescetarian, health-conscious) to come to their own conclusion about which meal from which restaurant they should get for their next meal. 
+To create intuitive visualizations that will allow consumers to make quick and informative choices about their meals when going to one of the four fast food restaurants we focused on for this project. We try to include information that will allow diverse consumers (ex: vegetarian/pescetarian, health-conscious) to come to their own conclusion about which meal from which restaurant they should get for their next meal. 
 
 ## Background and Preparation
 We utilized 4 separate data sets to create our visualizations: 
@@ -37,18 +59,6 @@ In order to narrate our story, we divide our presentation into two parts and a t
   
 ## Results and Conclusions
 In the following sections, we will share the codes that we used to clean, analyze, and graph the data before creating our final visuals on Tableau. 
-
-### Required Packages
-```{r}
-library(ggwordcloud)
-library(tidyverse)
-library(urbnmapr)
-library(janitor)
-library(ggplot2)
-library(skimr)
-library(sf)
-library(ggpubr)
-```
 
 ### Loading the data 
 ```{r}
@@ -284,4 +294,4 @@ fishie_plot
 
 ## Discussion and Critique
 
-> Through the process of carrying out our project, we learned how to visualize and manipulate data through tableau and R.  We met some problems when we tried to create density plots with tableau, we wish to solve this problem next time. Because we only picked four restaurants, To give people more solid suggestions on restaurants choices, we should include more restaurants and do more analysis. Also, because the data was originated in 2018, if possible, we should incorporate more updated and comprehensive data. Lastly, we mainly focused on the healthiness of the restaurants in our analysis. In the future, we can dig into the data from more varied perspectives. For example, we can check people's preferences over different ingredients across different states.
+Through the process of carrying out our project, we learned how to visualize and manipulate data through tableau and R.  We met some problems when we tried to create density plots with tableau, we wish to solve this problem next time. Because we only picked four restaurants, To give people more solid suggestions on restaurants choices, we should include more restaurants and do more analysis. Also, because the data was originated in 2018, if possible, we should incorporate more updated and comprehensive data. Lastly, we mainly focused on the healthiness of the restaurants in our analysis. In the future, we can dig into the data from more varied perspectives. For example, we can check people's preferences over different ingredients across different states.
