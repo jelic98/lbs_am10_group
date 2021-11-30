@@ -24,12 +24,12 @@ In our analysis, however, we first focused our analysis to the 4 largest fast fo
 
 ## Methodology 
 Overall, we utilized R packages such as dplyr to sort through the data and create relevant insights such as macro-nutrient balance scores and recognizing vegetarian/pescetarian menu items from the item names. We also utilized machine learning algorithms such as K-means to classify the menu items. The methodologies for each plot is described below with their respective codes. 
-In order to narrate our story, we divide our presentation into two parts and a total of 5 plots and lists: 
+In order to narrate our story, we divide our presentation into two parts and a total of 6 plots and lists: 
 
 - **1: Healthiness assessment of each restaurant and their menu items** 
   - Calorie distribution graph for each restaurant
   - Distribution of macro-nutrient balance scores for each menu item 
-  - Rankings of menu items with the best and worst balance scores
+  - Rankings of menu items with the best and worst macro-nutrient balance scores
   - Clustering menu items based on their various features (beyond the macros)
 - **2: Providing information for diverse consumers (vegetarians and pescetarians)**
   - Key word analysis of menu items using word cloud 
@@ -93,12 +93,12 @@ calories %>%
 
 ```
 
-### 2: Balance score boxplot 
+### 2: Macro-nutrient balance score oxplot 
 **Question answered:** What is the distribution of the macro-nutrient balance scores? 
 
-The balance score for each macro nutrient is calculated by multiplying total_carb_grams with the number of calories per gram (4 for carb, 4 for protein, 9 for fat), dividing by the total_calories in an item to get precentage and subtracting benchmark (50 carb, 30 fat, 20 protein) from the division result. The overall balance score is calculated with the following equation: *balance_score=score_prot-(score_carb+score_fat)*
+The macro-nutrient balance score for each macro nutrient is calculated by multiplying total_carb_grams with the number of calories per gram (4 for carb, 4 for protein, 9 for fat), dividing by the total_calories in an item to get precentage and subtracting benchmark (50 carb, 30 fat, 20 protein) from the division result. The overall macro-nutrient balance score is calculated with the following equation: *macro-nutrient _balance_score=score_prot-(score_carb+score_fat)*
 
-Then, we observed the distribution of the balance scores for all menu items for each restaurant using boxplots: 
+Then, we observed the distribution of the macro-nutrient balance scores for all menu items for each restaurant using boxplots: 
 
 ```{r}
 balance_scores <- calories %>%
@@ -125,7 +125,7 @@ balance_scores %>%
 ### 3: Healthiest and unhealthiest menu items 
 **Question answered:** Which menu items from which restaurants are the the most macro-nutrient balanced (healthiest)/ least balanced (unhealthiest)? 
 
-Using the balance scores calculated above, we sliced the five most balanced (healthy) menu items and then the five least balanced (unhealthy) menu items. 
+Using the macro-nutrient balance scores calculated above, we sliced the five most balanced (healthy) menu items and then the five least balanced (unhealthy) menu items. 
 
 ```{r}
 balance_scores %>%
