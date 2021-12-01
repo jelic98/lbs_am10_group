@@ -31,7 +31,7 @@ library(ggpubr)
 
 
 # Introduction 
-Our final project aims to explore the health level of fast food restaurants in United States and nutritional value of their items. This project will focus on four fast food restaurants including McDonald's, Subway, Burger King, and Taco bell. After exploring the calorie distribution of restaurants, we created our own quantitative measure of healthiness through the macro-nutrient balance score to further investigate the health level of those fast food restaurants. Furthermore, we identified menu items that are vegetarian and pescetarian friendly and provide information about the degree of vegetarian and pescetarian friendly of each restaurant. 
+Our final project aims to explore the health level of fast food restaurants in United States and nutritional value of their items. This project will focus on four fast food restaurants including McDonald's, Subway, Burger King, and Taco Bell. After exploring the calorie distribution of restaurants, we created our own quantitative measure of healthiness through the macro-nutrient balance score to further investigate the health level of those fast food restaurants. Furthermore, we identified menu items that are vegetarian and pescetarian friendly and provide information about the degree of vegetarian and pescetarian friendly of each restaurant. 
 
 # Statement of Purpose 
 To create intuitive visualizations that will allow consumers to make quick and informative choices about their meals when going to one of the four fast food restaurants we focused on for this project. We try to include information that will allow diverse consumers (ex: vegetarian/pescetarian, health-conscious) to come to their own conclusion about which meal from which restaurant they should get for their next meal. 
@@ -178,11 +178,30 @@ model_withClusters <- calories_clust %>%
 
 #Visualisations  
 a<-ggplot(model_withClusters, aes(x = calories, y = total_carb, color =  as.factor(cluster))) +
-  geom_jitter()+labs(color = "Cluster")
+  geom_jitter()+labs(color = "Cluster")+
+  scale_colour_manual(values = c("#fed862", "#329244"))+
+  theme(
+  panel.background = element_rect(fill = "white",
+                                colour = "white",
+                                size = 0.5, linetype = "solid"), 
+  panel.border = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(), 
+  plot.background = element_rect(fill = "white"))
+
 # Note that geom_jitter adds a small noise to each observation so that we can see overlapping points
 a
 b<-ggplot(model_withClusters, aes(x = calories, y = cholesterol, color = as.factor(cluster),size=calories)) +
-  geom_jitter()+labs(color = "Cluster")
+  geom_jitter()+labs(color = "Cluster") +
+  scale_colour_manual(values = c("#fed862", "#329244"))+
+  theme(
+  panel.background = element_rect(fill = "white",
+                                colour = "white",
+                                size = 0.5, linetype = "solid"), 
+  panel.border = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(), 
+  plot.background = element_rect(fill = "white"))
 b
 #Let's arrange these visualizations so that they fit in the html file nicely
 grid.arrange(a, b, nrow = 2)
@@ -192,7 +211,16 @@ cluster_centers<-data.frame(cluster=as.factor(c(1:2)),model_kmeans_2clusters$cen
 #transpose this data frame
 cluster_centers_t<-cluster_centers %>% gather(variable,value,-cluster,factor_key = TRUE)
 #plot the centers
-graphkmeans_2clusters<-ggplot(cluster_centers_t, aes(x = variable, y = value))+  geom_line(aes(color =cluster,group = cluster), linetype = "dashed",size=1)+ geom_point(size=1,shape=4)+geom_hline(yintercept=0)+theme(text = element_text(size=10),axis.text.x = element_text(angle=45, hjust=1),)+ggtitle("K-means Centers k=2")
+graphkmeans_2clusters<-ggplot(cluster_centers_t, aes(x = variable, y = value))+  geom_line(aes(color =cluster,group = cluster), linetype = "dashed",size=1)+ geom_point(size=1,shape=4)+geom_hline(yintercept=0)+theme(text = element_text(size=10),axis.text.x = element_text(angle=45, hjust=1),)+ggtitle("K-means Centers K=2")+
+  scale_colour_manual(values = c("#fed862", "#329244"))+
+  theme(
+  panel.background = element_rect(fill = "white",
+                                colour = "white",
+                                size = 0.5, linetype = "solid"), 
+  panel.border = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(), 
+  plot.background = element_rect(fill = "white"))
 graphkmeans_2clusters
 
 ```
@@ -200,10 +228,40 @@ graphkmeans_2clusters
 Below, we determine whether k=2 is optimal for clustering: 
 ```{r}
 #Checking if 2 is the optimal cluster 
-fviz_nbclust(calories_clust, kmeans, method = "silhouette",k.max = 15)+labs(subtitle = "Silhouette method")
+fviz_nbclust(calories_clust, kmeans, method = "silhouette",k.max = 15)+labs(subtitle = "Silhouette method")+
+  scale_colour_manual(values = c("#eeb605", "white"))+
+  theme(
+  panel.background = element_rect(fill = "#022062",
+                                colour = "#022062",
+                                size = 0.5, linetype = "solid"), 
+  panel.border = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(), 
+  plot.background = element_rect(fill = "#022062"), 
+  axis.text = element_text(colour = "white"),
+  legend.background = element_rect(fill = "#022062"), 
+  legend.key = element_rect(fill = "#022062"),
+  text = element_text(colour = "white"),
+           axis.text.y = element_text(colour = "white",
+                                      family = "Montserrat"))
 
 #Making a plot of Clusters 
-fviz_cluster(model_kmeans_2clusters, calories_clust, palette = "Set2", ggtheme = theme_minimal())
+fviz_cluster(model_kmeans_2clusters, calories_clust, palette = "Set2", ggtheme = theme_minimal()) +
+  scale_colour_manual(values = c("#eeb605", "white"))+
+  theme(
+  panel.background = element_rect(fill = "#022062",
+                                colour = "#022062",
+                                size = 0.5, linetype = "solid"), 
+  panel.border = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(), 
+  plot.background = element_rect(fill = "#022062"), 
+  axis.text = element_text(colour = "white"),
+  legend.background = element_rect(fill = "#022062"), 
+  legend.key = element_rect(fill = "#022062"),
+  text = element_text(colour = "white"),
+           axis.text.y = element_text(colour = "white",
+                                      family = "Montserrat"))
 ```
 
 ## 5. Wordcloud 
@@ -232,7 +290,7 @@ make_cloud('subway')
 ```
 
 ## 6. Vegetarian and Pescetarian friendly restaurants
-**Question answered:** Which of the four fast food restuarants is most vegetarian and or pescetarian friendly? 
+**Question answered:** Which of the four fast food restaurants is most vegetarian and or pescetarian friendly? 
 
 In this section, we explored the calories data set to find which restaurant is most vegetarian and or pescetarian friendly. We looked at each menu item name one by one to find some of the key words that can identify vegetarian or pescetarian friendly menu items. We extracted the number of vegetarian and pescetarian friendly menu items to find the percentage of menu that is vegetarian/pescetarian friendly for each restaurant. We plotted the results in a bar plot: 
 
