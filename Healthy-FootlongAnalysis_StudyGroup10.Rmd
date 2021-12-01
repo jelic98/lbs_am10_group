@@ -360,6 +360,12 @@ fishie_plot <-
 fishie_plot 
 ```
 
+# Key Findings
+1. Subway has the most health-conscious menu items
+2. Machine Learning naturally clumps meals together based on healthy and unhealthy factors (can be used to replace balance scores)
+3. Chicken is the most common ingredient overall
+4. Subway is the most inclusive restaurant
+
 # Discussion and Critique
 
 Through the process of carrying out our project, we learned how to visualize and manipulate data through tableau and R.  We met some problems when we tried to create density plots with tableau, we wish to solve this problem next time. Because we only picked four restaurants, To give people more solid suggestions on restaurants choices, we should include more restaurants and do more analysis. Also, because the data was originated in 2018, if possible, we should incorporate more updated and comprehensive data. Lastly, we mainly focused on the healthiness of the restaurants in our analysis. In the future, we can dig into the data from more varied perspectives. For example, we can check people's preferences over different ingredients across different states.

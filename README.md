@@ -36,3 +36,9 @@ We mainly discussed the following two topics regarding the purpose of our projec
 5.  What are the major key words found in each restaurants' menus? 
 6.  Which of the four fast food restaurants is most vegetarian or pescetarian friendly for diverse customers? 
 
+### Key Findings
+1. Subway has the most health-conscious menu items
+2. Machine Learning naturally clumps meals together based on healthy and unhealthy factors (can be used to replace balance scores)
+3. Chicken is the most common ingredient overall
+4. Subway is the most inclusive restaurant
+
