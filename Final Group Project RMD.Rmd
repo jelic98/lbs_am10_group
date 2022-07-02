@@ -1,0 +1,170 @@
+---
+title: "final group project rmd"
+author: "Group 10"
+date: "11/29/2021"
+output: html_document
+---
+
+## Introduction 
+
+
+## Statement of Purpose 
+> To create intuitive visualizations that will allow consumers to make quick and informative choices about their meals when going to one of the four fast food restaurants we focused on for this project. We try to include information that will allow diverse consumers (ex: vegetarian/pescetarian, health-conscious) to come to their own conclusion about which meal from which restaurant they should get for their next meal. 
+
+## Background and Preparation
+We utilized 4 separate data sets to create our visualizations: 
+
+- Data set 1: Fast food menu items and their nutritional values from tidytuesday in 2018
+- Data set 2: Fast food restaurants and their locations from 2018
+- Data set 3: US State names and their abbreviations 
+- Data set 4: US State population sizes
+
+It is important to note that the first two data sets do not include all current fast food menu items nor locations as the data is from 2018 and takes samples of locations from various locations of the country. As such, the analysis we could conduct was limited. 
+In our analysis, however, we first focused our analysis to the 4 largest fast food restaurants: McDonald's, Burger King, Subway, and Taco Bell. To prepare the data for analysis, we deleted irrelevant columns, adjusted state names if necessary, and made all string variables lowercase without special characters so as to standardize the data for easier analysis. 
+
+## Methodology 
+Overall, we utilized 
+
+## Results and Conclusions
+
+### Required Packages
+```{r packages}
+library(ggwordcloud)
+library(tidyverse)
+library(urbnmapr)
+library(janitor)
+library(ggplot2)
+library(skimr)
+library(sf)
+```
+
+### Loading the data 
+```{r loading the data}
+calories <- read_csv('data/fastfood_calories.csv') %>%
+  clean_names() %>%
+  rename(total_prot=protein) %>%
+  mutate(restaurant=str_replace_all(tolower(restaurant), '[^\\w]', '')) %>%
+  filter(
+    !is.na(fiber),
+    !is.na(total_prot),
+    restaurant %in% c('mcdonalds', 'burgerking', 'tacobell', 'subway')) %>%
+  select(-x1, -vit_a, -vit_c, -calcium, -salad)
+
+restaurants <- read_csv('data/FastFoodRestaurants.csv') %>%
+  clean_names() %>%
+  mutate(
+    state=if_else(province == 'Co Spgs', 'CO', province),
+    name=str_replace_all(tolower(name), '[^\\w]', '')) %>%
+  filter(name %in% unique(calories$restaurant)) %>%
+  select(-address, -country, -keys, -postal_code, -province, -websites)
+
+abbrevs <- read_csv('data/state-abbrevs.csv') %>%
+  clean_names()
+
+population <- read_csv('data/us_pop.csv') %>%
+  clean_names() %>%
+  left_join(abbrevs, by='state') %>%
+  select(-state) %>%
+  rename(state=abbreviation)
+```
+
+### 1: Calorie distribution 
+*Question answered:* What is the distribution of calories for each restaurant? 
+
+```{r}
+
+
+```
+
+### 2: Balance score boxplot 
+*Question answered:* What is the distribution of balance scores? 
+
+```{r}
+
+```
+
+### 3: Healthiest menu items 
+*Question answered:* Which menu items from which restaurants are the healthiest? 
+
+```{r}
+
+```
+
+### 4: Wordcloud 
+*Question answered:* 
+```{r}
+
+```
+
+### 5: Vegetarian and Pescetarian friendly restaurants
+*Question answered:* Which of the four fast food restuarants is most vegetarian and or pescetarian friendly? 
+
+In this section, we explored the calories data set to find which restaurant is most vegetarian and or pescetarian friendly 
+
+```{r vegetarian and pescetarian plots}
+#Vegetarian 
+calories_veg <- calories %>% 
+  mutate(item=str_replace_all(tolower(item), '[^\\s\\w]',''),
+        wo = ifelse(grepl('wo chicken', item), 1, 0),
+         veggie = ifelse(grepl('veggie', item), 1, 0),
+        veggies = ifelse(grepl('veggies', item), 1, 0),
+        cheesepizza = ifelse(grepl('cheese pizza', item),1,0),
+        cheesequesadilla = ifelse(grepl('cheese quesadilla', item),1,0),
+        cheeserollup = ifelse(grepl('cheese rollup', item),1,0),
+        bean_burrito = ifelse(grepl('bean burrito', item),1,0),
+        tostada = ifelse(grepl('spicy tostada', item),1,0),
+        gardensalad = ifelse(grepl('side garden salad', item),1,0),
+         total_veg = wo + veggie + veggies + cheesepizza + cheesequesadilla + cheeserollup + bean_burrito + tostada + gardensalad) %>%
+  group_by(restaurant) %>% 
+  summarize(count = n(),
+            sum_veg = sum(total_veg), 
+            perc = sum_veg/count * 100) 
+calories_veg
+
+# R vegetarian friendly plot 
+veggie_plot <- 
+  calories_veg %>% ggplot(aes(x= reorder(restaurant, perc), y = perc, fill=factor(ifelse(restaurant=="subway","Highlighted","Normal")))) + 
+  geom_col() + 
+  theme(legend.position = "none")+
+  ggtitle("Subway is the most vegetarian friendly restaurant") +
+  xlab("Restaurants") + 
+  ylab("Percentage of menu items that are pescetarian friendly (%)") 
+veggie_plot
+
+#Pescetarian 
+calories_pesc <- calories %>% 
+  mutate(item=str_replace_all(tolower(item), '[^\\s\\w]',''),
+         wo = ifelse(grepl('wo chicken', item), 1, 0),
+         veggie = ifelse(grepl('veggie', item), 1, 0),
+         veggies = ifelse(grepl('veggies', item), 1, 0),
+         cheesepizza = ifelse(grepl('cheese pizza', item),1,0),
+         cheesequesadilla = ifelse(grepl('cheese quesadilla', item),1,0),
+         cheeserollup = ifelse(grepl('cheese rollup', item),1,0),
+         bean_burrito = ifelse(grepl('bean burrito', item),1,0),
+         tostada = ifelse(grepl('spicy tostada', item),1,0),
+         gardensalad = ifelse(grepl('side garden salad', item),1,0),
+         seafood = ifelse(grepl('seafood', item),1,0),
+         tuna = ifelse(grepl('tuna', item),1,0),
+         fish = ifelse(grepl('fish', item),1,0),
+         lobster = ifelse(grepl('lobster', item),1,0),
+         total_pesc = wo + veggie + veggies + cheesepizza + cheesequesadilla + cheeserollup + bean_burrito + tostada + gardensalad + seafood + tuna + fish + lobster) %>%
+  group_by(restaurant) %>% 
+  summarize(count = n(),
+            sum_pesc = sum(total_pesc), 
+            perc = sum_pesc/count * 100)
+calories_pesc
+
+# R pescetarian friendly plot 
+fishie_plot <- 
+  calories_pesc %>% ggplot(aes(x= reorder(restaurant, perc), y = perc, fill=factor(ifelse(restaurant=="subway","Highlighted","Normal")))) + 
+  geom_col() + 
+  theme(legend.position = "none")+
+  ggtitle("Subway is the most pescetarian friendly restaurant") +
+  xlab("Restaurants") + 
+  ylab("Percentage of menu items that are pescetarian friendly (%)")
+fishie_plot 
+```
+
+## Discussion and Critique
+
+> Through the process of carrying out our project, we learned how to visualize and manipulate data through tableau and R.  We met some problems when we tried to create density plots with tableau, we wish to solve this problem next time. Because we only picked four restaurants, To give people more solid suggestions on restaurants choices, we should include more restaurants and do more analysis. Also, because the data was originated in 2018, if possible, we should incorporate more updated and comprehensive data. Also, we mainly focused on the healthiness of the restaurants in our analysis. In the future, we can dig into the data from more varied perspectives. For example, we can check people's preferences over different ingredients across different states.
